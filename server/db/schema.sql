@@ -51,6 +51,21 @@ CREATE TABLE league_entry (
     CHECK (points >= 0)
 );
 
+CREATE TABLE game (
+    game_id INT AUTO_INCREMENT PRIMARY KEY,
+    season_id INT NOT NULL,
+    game_date DATE NOT NULL,
+    home_team_id INT NOT NULL,
+    away_team_id INT NOT NULL,
+    home_score INT NOT NULL,
+    away_score INT NOT NULL,
+    FOREIGN KEY (season_id) REFERENCES season (season_id),
+    FOREIGN KEY (home_team_id) REFERENCES team (team_id),
+    FOREIGN KEY (away_team_id) REFERENCES team (team_id),
+    CHECK (home_team_id != away_team_id),
+    CHECK (home_score >= 0 AND away_score >= 0)
+);
+
 CREATE TABLE player (
     player_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
