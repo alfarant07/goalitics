@@ -2,28 +2,29 @@ DROP DATABASE IF EXISTS sports_app;
 CREATE DATABASE sports_app;
 USE sports_app;
 
-create table sport(
-	sport_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE sport (
+    sport_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
-create table league(
-	league_id int auto_increment primary key,
-    sport_id int not null,
-    name varchar(100) not null,
-    region varchar(100) not null,
-    team_limit int not null,
-    foreign key (sport_id) references sport (sport_id),
-    check (team_limit > 0)
+CREATE TABLE league (
+    league_id INT AUTO_INCREMENT PRIMARY KEY,
+    sport_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    region VARCHAR(100) NOT NULL,
+    team_limit INT NOT NULL,
+    FOREIGN KEY (sport_id) REFERENCES sport (sport_id) ON DELETE RESTRICT,
+    CHECK (team_limit > 0)
 );
 
-create table season (
-	season_id int auto_increment primary key,
-    league_id int not null,
-    year int not null,
-    data_complete varchar(5) not null,
-    foreign key (league_id) references league (league_id),
-	unique(league_id, year)
+CREATE TABLE season (
+    season_id INT AUTO_INCREMENT PRIMARY KEY,
+    league_id INT NOT NULL,
+    year INT NOT NULL,
+    data_complete VARCHAR(5) NOT NULL,
+    FOREIGN KEY (league_id) REFERENCES league (league_id) ON DELETE CASCADE,
+    UNIQUE (league_id, year),
+    CHECK (data_complete IN ('TRUE', 'FALSE'))
 );
 
 CREATE TABLE team (
@@ -41,13 +42,14 @@ CREATE TABLE app_user (
     password VARCHAR(255) NOT NULL
 );
 
+-- M:N between Season and Team
 CREATE TABLE league_entry (
     season_id INT NOT NULL,
     team_id INT NOT NULL,
     points INT NOT NULL DEFAULT 0,
     PRIMARY KEY (season_id, team_id),
     FOREIGN KEY (season_id) REFERENCES season (season_id) ON DELETE CASCADE,
-    FOREIGN KEY (team_id) REFERENCES team (team_id),
+    FOREIGN KEY (team_id) REFERENCES team (team_id) ON DELETE CASCADE,
     CHECK (points >= 0)
 );
 
@@ -59,9 +61,9 @@ CREATE TABLE game (
     away_team_id INT NOT NULL,
     home_score INT NOT NULL,
     away_score INT NOT NULL,
-    FOREIGN KEY (season_id) REFERENCES season (season_id),
-    FOREIGN KEY (home_team_id) REFERENCES team (team_id),
-    FOREIGN KEY (away_team_id) REFERENCES team (team_id),
+    FOREIGN KEY (season_id) REFERENCES season (season_id) ON DELETE CASCADE,
+    FOREIGN KEY (home_team_id) REFERENCES team (team_id) ON DELETE RESTRICT,
+    FOREIGN KEY (away_team_id) REFERENCES team (team_id) ON DELETE RESTRICT,
     CHECK (home_team_id != away_team_id),
     CHECK (home_score >= 0 AND away_score >= 0)
 );
@@ -70,17 +72,19 @@ CREATE TABLE player (
     player_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     team_id INT NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES team (team_id)
+    FOREIGN KEY (team_id) REFERENCES team (team_id) ON DELETE RESTRICT
 );
 
+-- multivalued attribute table
 CREATE TABLE player_stat (
     player_id INT NOT NULL,
     stat_name VARCHAR(50) NOT NULL,
     value DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (player_id, stat_name),
-    FOREIGN KEY (player_id) REFERENCES player (player_id)
+    FOREIGN KEY (player_id) REFERENCES player (player_id) ON DELETE CASCADE
 );
 
+-- M:N between User and Team
 CREATE TABLE user_tracks_team (
     u_id INT NOT NULL,
     team_id INT NOT NULL,
@@ -88,6 +92,8 @@ CREATE TABLE user_tracks_team (
     FOREIGN KEY (u_id) REFERENCES app_user (u_id) ON DELETE CASCADE,
     FOREIGN KEY (team_id) REFERENCES team (team_id) ON DELETE CASCADE
 );
+
+-- M:N between User and Player
 CREATE TABLE user_tracks_player (
     u_id INT NOT NULL,
     player_id INT NOT NULL,
@@ -95,4 +101,3 @@ CREATE TABLE user_tracks_player (
     FOREIGN KEY (u_id) REFERENCES app_user (u_id) ON DELETE CASCADE,
     FOREIGN KEY (player_id) REFERENCES player (player_id) ON DELETE CASCADE
 );
-
