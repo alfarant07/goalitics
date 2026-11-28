@@ -151,7 +151,15 @@ INSERT INTO league_entry (season_id, team_id, points) VALUES
     (17, 16, 47),
     (17, 17, 46),
     (17, 18, 46),
-    (17, 25, 39);
+    (17, 25, 39),
+	(14, 13, 67),
+    (14, 14, 52),
+    (20, 19, 82),
+    (20, 20, 100),
+    (22, 21, 11),
+    (22, 22, 12),
+    (24, 23, 104),
+    (24, 24, 110);
 
 INSERT INTO player (player_id, name, team_id) VALUES
     (1, 'Erling Haaland', 1),
